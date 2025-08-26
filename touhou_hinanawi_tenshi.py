@@ -1,30 +1,35 @@
 ############import packages############
 import sys
 import pygame
+from settings import Settings
+from hinanawi_tenshi import HinanawiTenshi
 image_1 = pygame.image.load("/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/g_1.jpg")
-
-
-
+image_2 = pygame.image.load("/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/g_2.jpg")
 
 ############set the classes############
 class TouhouHinanawiTenshi:
-    """"The class which manages the resources and the behaviour"""
     def __init__(x):
         pygame.init()
-        x.screen = pygame.display.set_mode((1200,800))
+        x.clock = pygame.time.Clock()
+        x.settings = Settings()
+        x.screen = pygame.display.set_mode((x.settings.screen_width,x.settings.screen_height))
         pygame.display.set_caption("Touhou Hinanawi Invasion")
-
+        x.hinanawi_tenshi = HinanawiTenshi(x)
+        x.screen.fill((255, 255, 255))
+        
     def run_game(x):
-        """Beginning the main circulation of the game"""
         while True:
-            """Suspect the action of mouse and keyboard"""
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-            """Making the screen can be seen"""
+            image_2_1 = pygame.transform.scale(image_2.convert(), (x.settings.screen_width, x.settings.screen_height))
+            x.screen.blit(image_2_1,(0,0))
+            x.hinanawi_tenshi.blitme()
+
             pygame.display.flip()
+            x.clock.tick(60)
 
 ###########Producing the game and lunch it###########
 if __name__ == '__main__':
-    ai = TouhouHinanawiTenshi()
-    ai.run_game()
+    tht = TouhouHinanawiTenshi()
+    tht.run_game()
