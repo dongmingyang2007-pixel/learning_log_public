@@ -1,9 +1,9 @@
 import sys
 import pygame
+from random import randint
 from settings import Settings
 from hinanawi_tenshi import HinanawiTenshi
 image_1 = pygame.image.load("/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/g_1.jpg")
-image_2 = pygame.image.load("/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/g_2.jpg")
 
 
 class TouhouHinanawiTenshi:
@@ -19,6 +19,8 @@ class TouhouHinanawiTenshi:
         x.left_down = False
         x.right_down = False
         x.flag = None
+        x.choice = None
+        x.Background_1__frames = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/Background_1/frame_{i}.jpg"), (x.settings.screen_width, x.settings.screen_height)) for i in range(0,240)]
 
     def _check_events(x):
         for event in pygame.event.get():
@@ -40,7 +42,12 @@ class TouhouHinanawiTenshi:
                             if event.key == pygame.K_LSHIFT:
                                 x.hinanawi_tenshi.moving_fast = True
                             if event.key == pygame.K_z:
-                                x.hinanawi_tenshi.dash_forward_air_A = True
+                                x.choice = randint(1,2)
+                                if x.choice == 1:
+                                    x.hinanawi_tenshi.dash_forward_air_A = True
+                                if x.choice == 2:
+                                    x.hinanawi_tenshi.dash_forward_air_B = True
+
                             if event.key == pygame.K_DOWN:
                                 x.hinanawi_tenshi.sit_down = True
                                 x.hinanawi_tenshi.stand_up = False
@@ -67,6 +74,7 @@ class TouhouHinanawiTenshi:
                                 x.hinanawi_tenshi.moving_fast = False 
                             if event.key == pygame.K_z:
                                 x.hinanawi_tenshi.dash_forward_air_A = False
+                                x.hinanawi_tenshi.dash_forward_air_B = False
                             if event.key == pygame.K_DOWN:
                                 x.hinanawi_tenshi.sit_down = False
                                 x.hinanawi_tenshi.stand_up = True
@@ -100,14 +108,24 @@ class TouhouHinanawiTenshi:
     def run_game(x):
         while True:
             x._check_events()
-            image_2_1 = pygame.transform.scale(image_2.convert(), (x.settings.screen_width, x.settings.screen_height))
-            x.screen.blit(image_2_1,(0,0))
+            #for frame in x.Background_1__frames:
+                #x.screen.blit(frame,(0,0))
+                #x.clock.tick(5)
+            x.screen.blit(x.Background_1__frames[0],(0,0))
             if x.hinanawi_tenshi.dash_forward_air_A and x.hinanawi_tenshi.moving_right:
                 x.hinanawi_tenshi.function_dash_forward_air_A_right()
                 x.clock.tick(8)
 
             elif x.hinanawi_tenshi.dash_forward_air_A and x.hinanawi_tenshi.moving_left:
                 x.hinanawi_tenshi.function_dash_forward_air_A_left()
+                x.clock.tick(8)
+            
+            elif x.hinanawi_tenshi.dash_forward_air_B and x.hinanawi_tenshi.moving_right:
+                x.hinanawi_tenshi.function_dash_forward_air_B_right()
+                x.clock.tick(8)
+
+            elif x.hinanawi_tenshi.dash_forward_air_B and x.hinanawi_tenshi.moving_left:
+                x.hinanawi_tenshi.function_dash_forward_air_B_left()
                 x.clock.tick(8)
 
             elif x.hinanawi_tenshi.sit_down:
