@@ -1,9 +1,11 @@
 ############import packages############
 import pygame
+from pygame.sprite import Sprite
 
 ##########The class of Hinanawi Tenshi##########
-class HinanawiTenshi:
+class HinanawiTenshi(Sprite):
     def __init__(x,tht_game):
+        super().__init__()
         x.screen = tht_game.screen
         x.screen_rect = tht_game.screen.get_rect()
         x.settings = tht_game.settings
@@ -12,6 +14,11 @@ class HinanawiTenshi:
         x.frames_hinanawi_tenshi_dash_forward_air_A = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_dash_forward_air_A/frame_{i}.png"),(x.settings.tenshi_size_x, x.settings.tenshi_size_y)) for i in range(0,8)]
         x.frames_hinanawi_tenshi_dash_forward_air_B = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_dash_forward_air_B/frame_{i}.png"),(400, x.settings.tenshi_size_y)) for i in range(0,13)]
         x.frames_hinanawi_tenshi_sit = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_sit/frame_{i}.png"),(x.settings.tenshi_size_x, x.settings.tenshi_size_y)) for i in range(0,12)]
+        x.frames_hinanawi_tenshi_attack_B_1_right = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_attack_B_1/frame_{i}.png"),(452, 520)) for i in range(0,12)]
+        x.frames_hinanawi_tenshi_attack_B_1_left = [pygame.transform.flip(pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_attack_B_1/frame_{i}.png"),(452, 520)),True,False) for i in range(0,12)]
+        x.frames_hinanawi_tenshi_shot_B = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_shot_B/frame_{i}.png"),(720, x.settings.tenshi_size_y)) for i in range(0,12)]
+        x.frames_hinanawi_tenshi_spell_call = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_spell_call/frame_{i}.png"),(480, 540)) for i in range(0,12)]
+        x.frames_hinanawi_tenshi_gaurd_upper_B = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_gaurd_upper_B/frame_{i}.png"),(280, 460)) for i in range(0,4)]
         x.frames_hinanawi_tenshi_sit_down = x.frames_hinanawi_tenshi_sit[0:6]
         x.frame_hinanawi_tenshi_sitting = x.frames_hinanawi_tenshi_sit[6]
         x.frames_hinanawi_tenshi_stand_up = x.frames_hinanawi_tenshi_sit[7:12]
@@ -21,11 +28,19 @@ class HinanawiTenshi:
         x.frame_hinanawi_tenshi_dash_forward_air_B_index = 0
         x.frame_hinanawi_tenshi_sit_index = 0
         x.frame_hinanawi_tenshi_stand_index = 0
+        x.frame_hinanawi_tenshi_attack_B_1_index = 0
+        x.frame_hinanawi_tenshi_shot_B_index = 0
+        x.frame_hinanawi_tenshi_spell_call_index = 0
+        x.frame_hinanawi_tenshi_gaurd_upper_B_index = 0
         x.rects_idle = [frame.get_rect(x = 865, y = 540) for frame in x.frames_idle]
         x.rects_walk = [frame.get_rect(x = 865, y = 540) for frame in x.frames_walk]
         x.rects_hinanawi_tenshi_dash_forward_air_A = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_dash_forward_air_A]
         x.rects_hinanawi_tenshi_dash_forward_air_B = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_dash_forward_air_B]        
         x.rects_hinanawi_tenshi_sit = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_sit]
+        x.rects_hinanawi_tenshi_attack_B_1_right = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_attack_B_1_right]
+        x.rects_hinanawi_tenshi_attack_B_1_left = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_attack_B_1_left]
+        x.rects_hinanawi_tenshi_shot_B = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_shot_B]
+        x.rects_hinanawi_tenshi_spell_call = [frame.get_rect(x = 865, y = 540) for frame in x.frames_hinanawi_tenshi_spell_call]
         x.rects_hinanawi_tenshi_sit_down = x.rects_hinanawi_tenshi_sit[0:6]
         x.rect_hinanawi_tenshi_sitting = x.rects_hinanawi_tenshi_sit[6]
         x.rects_hinanawi_tenshi_sit_up = x.rects_hinanawi_tenshi_sit[7:12]
@@ -38,66 +53,103 @@ class HinanawiTenshi:
         x.dash_forward_air_B = False
         x.sit_down = False
         x.stand_up = False
+        x.attack_B_1 = False
+        x.shot_B = False
+        x.spell_call = False
+        x.gaurd_upper_B = False
         x.sit_phase = "idle"
+        x.mask = pygame.mask.from_surface(x.frames_idle[0].convert_alpha())
+        x.rect = x.rects_idle[0]
+
+    def _anchor_midbottom(x):
+        return x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index].midbottom
+
+    def _blit_at_midbottom(self, surface, dx=0, dy=0):
+        mbx, mby = self._anchor_midbottom()
+        dest = surface.get_rect(midbottom=(mbx + dx, mby + dy))
+        self.image = surface.convert_alpha()
+        self.rect = dest
+        self.mask = pygame.mask.from_surface(self.image)
+        self.screen.blit(self.image, self.rect)
 
     def blitme_right(x):
-        x.screen.blit(x.frames_idle[x.frame_idle_index].convert_alpha(), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
+        img = x.frames_idle[x.frame_idle_index].convert_alpha()
+        x._blit_at_midbottom(img)
         x.frame_idle_index = (x.frame_idle_index + 1) % len(x.frames_idle)
 
     def blitme_left(x):
-        x.screen.blit(pygame.transform.flip(x.frames_idle[x.frame_idle_index].convert_alpha(), flip_x = True , flip_y = False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
+        img = pygame.transform.flip(x.frames_idle[x.frame_idle_index].convert_alpha(), True, False)
+        x._blit_at_midbottom(img)
         x.frame_idle_index = (x.frame_idle_index + 1) % len(x.frames_idle)
 
     def update(x):
         if x.moving_right:
             if x.moving_fast:
-                for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                    x.x = float(x.rect.x)
-                    x.x += 2 * x.settings.hinanawi_tenshi_walk_speed
-                    x.rect.x = x.x
+                for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                    if (x.moving_right and rect.right) < x.screen_rect.right:
+                        x.x = float(rect.x)
+                        x.x += 2 * x.settings.hinanawi_tenshi_walk_speed
+                        rect.x = x.x
+                    x.rect = rect
+                x.mask = pygame.mask.from_surface(x.frames_walk[x.frame_walk_index].convert_alpha())
                 x.screen.blit(x.frames_walk[x.frame_walk_index].convert_alpha(), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
             if x.moving_fast == False:
-                for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                    x.x = float(x.rect.x)
-                    x.x += x.settings.hinanawi_tenshi_walk_speed
-                    x.rect.x = x.x
+                for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                    if (x.moving_right and rect.right) < x.screen_rect.right:
+                        x.x = float(rect.x)
+                        x.x += x.settings.hinanawi_tenshi_walk_speed
+                        rect.x = x.x
+                    x.rect = rect
+                x.mask = pygame.mask.from_surface(x.frames_walk[x.frame_walk_index].convert_alpha())
                 x.screen.blit(x.frames_walk[x.frame_walk_index].convert_alpha(), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
         x.flag = "right"
 
         if x.moving_left:
             if x.moving_fast:
-                for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                    x.x = float(x.rect.x)
-                    x.x -= 2 * x.settings.hinanawi_tenshi_walk_speed
-                    x.rect.x = x.x
+                for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                    if (x.moving_left and rect.left) > 0:
+                        x.x = float(rect.x)
+                        x.x -= 2 * x.settings.hinanawi_tenshi_walk_speed
+                        rect.x = x.x
+                    x.rect = rect
+                x.mask = pygame.mask.from_surface(pygame.transform.flip(x.frames_walk[x.frame_walk_index].convert_alpha(),True,False))
                 x.screen.blit(pygame.transform.flip(x.frames_walk[x.frame_walk_index].convert_alpha(), flip_x = True , flip_y = False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
             if x.moving_fast == False:
-                for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                    x.x = float(x.rect.x)
-                    x.x -= x.settings.hinanawi_tenshi_walk_speed
-                    x.rect.x = x.x
+                for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                    if (x.moving_left and rect.left) > 0:
+                        x.x = float(rect.x)
+                        x.x -= x.settings.hinanawi_tenshi_walk_speed
+                        rect.x = x.x
+                    x.rect = rect
+                x.mask = pygame.mask.from_surface(pygame.transform.flip(x.frames_walk[x.frame_walk_index].convert_alpha(),True,False))
                 x.screen.blit(pygame.transform.flip(x.frames_walk[x.frame_walk_index].convert_alpha(), flip_x = True , flip_y = False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
         x.frame_walk_index = (x.frame_walk_index + 1) % len(x.frames_walk)
         x.flag = "left"
 
     def function_dash_forward_air_A_right(x):
         if x.dash_forward_air_A and x.moving_right:
-            for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                x.x = float(x.rect.x)
-                x.x += 6 * x.settings.hinanawi_tenshi_walk_speed
-                x.rect.x = x.x
-            x.screen.blit(x.frames_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index], x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
+            for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                if (x.moving_right and rect.right) < x.screen_rect.right:
+                    x.x = float(rect.x)
+                    x.x += 6 * x.settings.hinanawi_tenshi_walk_speed
+                    rect.x = x.x
+                x.rect = rect
+            img = x.frames_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index].convert_alpha()
+            x._blit_at_midbottom(img, dx=0, dy=0)
         if x.frame_hinanawi_tenshi_dash_forward_air_A_index == 7:
             x.dash_forward_air_A = False
         x.frame_hinanawi_tenshi_dash_forward_air_A_index = (x.frame_hinanawi_tenshi_dash_forward_air_A_index + 1) % len(x.frames_hinanawi_tenshi_dash_forward_air_A)
 
     def function_dash_forward_air_A_left(x):
         if x.dash_forward_air_A and x.moving_left:
-            for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                x.x = float(x.rect.x)
-                x.x -= 6 * x.settings.hinanawi_tenshi_walk_speed
-                x.rect.x = x.x
-            x.screen.blit(pygame.transform.flip(x.frames_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index].convert_alpha(), flip_x = True , flip_y = False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
+            for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                if (x.moving_left and rect.left) > 0:
+                    x.x = float(rect.x)
+                    x.x -= 6 * x.settings.hinanawi_tenshi_walk_speed
+                    rect.x = x.x
+                x.rect = rect
+            img = pygame.transform.flip(x.frames_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index].convert_alpha(), True, False)
+            x._blit_at_midbottom(img)
         if x.frame_hinanawi_tenshi_dash_forward_air_A_index == 7:
             x.dash_forward_air_A = False
         x.frame_hinanawi_tenshi_dash_forward_air_A_index = (x.frame_hinanawi_tenshi_dash_forward_air_A_index + 1) % len(x.frames_hinanawi_tenshi_dash_forward_air_A)
@@ -107,6 +159,7 @@ class HinanawiTenshi:
             x.sit_phase = "sit_down"
         if x.sit_down and x.sit_phase == "sit_down":
             if 0 <= x.frame_hinanawi_tenshi_sit_index < 6:
+                x.mask = pygame.mask.from_surface(pygame.transform.flip(x.frames_hinanawi_tenshi_sit_down[x.frame_hinanawi_tenshi_sit_index].convert_alpha(),True,False))
                 x.screen.blit(pygame.transform.flip(x.frames_hinanawi_tenshi_sit_down[x.frame_hinanawi_tenshi_sit_index].convert_alpha(), True, False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
                 if x.frame_hinanawi_tenshi_sit_index < 5:
                     x.frame_hinanawi_tenshi_sit_index += 1
@@ -115,6 +168,7 @@ class HinanawiTenshi:
             else:
                 x.sit_phase = "sitting"
         elif x.sit_phase == "sitting":
+            x.mask = pygame.mask.from_surface(pygame.transform.flip(x.frame_hinanawi_tenshi_sitting.convert_alpha(), True, False))
             x.screen.blit(pygame.transform.flip(x.frame_hinanawi_tenshi_sitting.convert_alpha(), True, False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
             if (not x.sit_down) and (not x.stand_up):
                 x.stand_up = True
@@ -125,6 +179,7 @@ class HinanawiTenshi:
             x.sit_phase = "sit_down"
         if x.sit_down and x.sit_phase == "sit_down":
             if 0 <= x.frame_hinanawi_tenshi_sit_index < 6:
+                x.mask = pygame.mask.from_surface(x.frames_hinanawi_tenshi_sit_down[x.frame_hinanawi_tenshi_sit_index].convert_alpha())
                 x.screen.blit(x.frames_hinanawi_tenshi_sit_down[x.frame_hinanawi_tenshi_sit_index].convert_alpha(), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
                 if x.frame_hinanawi_tenshi_sit_index < 5:
                     x.frame_hinanawi_tenshi_sit_index += 1
@@ -133,6 +188,7 @@ class HinanawiTenshi:
             else:
                 x.sit_phase = "sitting"
         elif x.sit_phase == "sitting":
+            x.mask = pygame.mask.from_surface(x.frame_hinanawi_tenshi_sitting.convert_alpha())
             x.screen.blit(x.frame_hinanawi_tenshi_sitting.convert_alpha(), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
             if (not x.sit_down) and (not x.stand_up):
                 x.stand_up = True
@@ -143,6 +199,7 @@ class HinanawiTenshi:
             if x.stand_up and x.sit_phase != "stand_up":
                 x.sit_phase = "stand_up"
             if 0 <= x.frame_hinanawi_tenshi_stand_index < 5:
+                x.mask = pygame.mask.from_surface(pygame.transform.flip(x.frames_hinanawi_tenshi_stand_up[x.frame_hinanawi_tenshi_stand_index].convert_alpha(), True, False))
                 x.screen.blit(pygame.transform.flip(x.frames_hinanawi_tenshi_stand_up[x.frame_hinanawi_tenshi_stand_index].convert_alpha(), True, False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
                 if 0 <= x.frame_hinanawi_tenshi_stand_index < 4:
                     x.frame_hinanawi_tenshi_stand_index += 1
@@ -156,6 +213,7 @@ class HinanawiTenshi:
             if x.stand_up and x.sit_phase != "stand_up":
                 x.sit_phase = "stand_up"
             if 0 <= x.frame_hinanawi_tenshi_stand_index < 5:
+                x.mask = pygame.mask.from_surface(x.frames_hinanawi_tenshi_stand_up[x.frame_hinanawi_tenshi_stand_index].convert_alpha())
                 x.screen.blit(x.frames_hinanawi_tenshi_stand_up[x.frame_hinanawi_tenshi_stand_index].convert_alpha(), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
                 if 0 <= x.frame_hinanawi_tenshi_stand_index < 4:
                     x.frame_hinanawi_tenshi_stand_index += 1
@@ -166,22 +224,114 @@ class HinanawiTenshi:
 
     def function_dash_forward_air_B_right(x):
         if x.dash_forward_air_B and x.moving_right:
-            for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                x.x = float(x.rect.x)
-                x.x += 6 * x.settings.hinanawi_tenshi_walk_speed
-                x.rect.x = x.x
-            x.screen.blit(x.frames_hinanawi_tenshi_dash_forward_air_B[x.frame_hinanawi_tenshi_dash_forward_air_B_index], x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
+            for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                if (x.moving_right and rect.right) < x.screen_rect.right:
+                    x.x = float(rect.x)
+                    x.x += 6 * x.settings.hinanawi_tenshi_walk_speed
+                    rect.x = x.x
+                x.rect = rect
+            img = x.frames_hinanawi_tenshi_dash_forward_air_B[x.frame_hinanawi_tenshi_dash_forward_air_B_index].convert_alpha()
+            x._blit_at_midbottom(img, dx=0, dy=0)
         if x.frame_hinanawi_tenshi_dash_forward_air_B_index == 12:
             x.dash_forward_air_B = False
         x.frame_hinanawi_tenshi_dash_forward_air_B_index = (x.frame_hinanawi_tenshi_dash_forward_air_B_index + 1) % len(x.frames_hinanawi_tenshi_dash_forward_air_B)
 
     def function_dash_forward_air_B_left(x):
         if x.dash_forward_air_B and x.moving_left:
-            for x.rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
-                x.x = float(x.rect.x)
-                x.x -= 6 * x.settings.hinanawi_tenshi_walk_speed
-                x.rect.x = x.x
-            x.screen.blit(pygame.transform.flip(x.frames_hinanawi_tenshi_dash_forward_air_B[x.frame_hinanawi_tenshi_dash_forward_air_B_index].convert_alpha(), flip_x = True , flip_y = False), x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index])
+            for rect in x.rects_hinanawi_tenshi_dash_forward_air_A:
+                if (x.moving_left and rect.left) > 0:
+                    x.x = float(rect.x)
+                    x.x -= 6 * x.settings.hinanawi_tenshi_walk_speed
+                    rect.x = x.x
+                x.rect = rect
+            img = pygame.transform.flip(x.frames_hinanawi_tenshi_dash_forward_air_B[x.frame_hinanawi_tenshi_dash_forward_air_B_index].convert_alpha(), True, False)
+            x._blit_at_midbottom(img)
         if x.frame_hinanawi_tenshi_dash_forward_air_B_index == 12:
             x.dash_forward_air_B = False
         x.frame_hinanawi_tenshi_dash_forward_air_B_index = (x.frame_hinanawi_tenshi_dash_forward_air_B_index + 1) % len(x.frames_hinanawi_tenshi_dash_forward_air_B)
+
+    def function_attack_B_1_right(x):
+        if x.attack_B_1:
+            img = x.frames_hinanawi_tenshi_attack_B_1_right[x.frame_hinanawi_tenshi_attack_B_1_index].convert_alpha()
+            x._blit_at_midbottom(img, dx=0, dy=0)
+            if 0 <= x.frame_hinanawi_tenshi_attack_B_1_index < 11:
+                x.frame_hinanawi_tenshi_attack_B_1_index += 1
+            else:
+                x.attack_B_1 = False
+                x.frame_hinanawi_tenshi_attack_B_1_index = 0
+
+    def function_attack_B_1_left(x):
+        if x.attack_B_1:
+            img = x.frames_hinanawi_tenshi_attack_B_1_left[x.frame_hinanawi_tenshi_attack_B_1_index].convert_alpha()
+            x._blit_at_midbottom(img, dx=0, dy=0)
+            if 0 <= x.frame_hinanawi_tenshi_attack_B_1_index < 11:
+                x.frame_hinanawi_tenshi_attack_B_1_index += 1
+            else:
+                x.attack_B_1 = False
+                x.frame_hinanawi_tenshi_attack_B_1_index = 0
+    
+    def function_shot_B_right(x):
+        if x.shot_B:
+            if 0 <= x.frame_hinanawi_tenshi_shot_B_index < 12:
+                img = x.frames_hinanawi_tenshi_shot_B[x.frame_hinanawi_tenshi_shot_B_index].convert_alpha()
+                x._blit_at_midbottom(img, dx=0, dy=0)
+                if 0 <= x.frame_hinanawi_tenshi_shot_B_index < 11:
+                    x.frame_hinanawi_tenshi_shot_B_index += 1
+                else:
+                    x.shot_B = False
+                    x.frame_hinanawi_tenshi_shot_B_index = 0
+
+    def function_shot_B_left(x):
+        if x.shot_B:
+            if 0 <= x.frame_hinanawi_tenshi_shot_B_index < 12:
+                img = pygame.transform.flip(x.frames_hinanawi_tenshi_shot_B[x.frame_hinanawi_tenshi_shot_B_index].convert_alpha(), True, False)
+                x._blit_at_midbottom(img, dx=0, dy=0)
+                if 0 <= x.frame_hinanawi_tenshi_shot_B_index < 11:
+                    x.frame_hinanawi_tenshi_shot_B_index += 1
+                else:
+                    x.shot_B = False
+                    x.frame_hinanawi_tenshi_shot_B_index = 0
+    
+    def function_spell_call_left(x):
+        if x.spell_call:
+            if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 12:
+                img = pygame.transform.flip(x.frames_hinanawi_tenshi_spell_call[x.frame_hinanawi_tenshi_spell_call_index].convert_alpha(), True, False)
+                x._blit_at_midbottom(img, dx= -100, dy=0)
+                if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 11:
+                    x.frame_hinanawi_tenshi_spell_call_index += 1
+                else:
+                    x.spell_call = False
+                    x.frame_hinanawi_tenshi_spell_call_index = 0
+    
+    def function_spell_call_right(x):
+        if x.spell_call:
+            if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 12:
+                img = x.frames_hinanawi_tenshi_spell_call[x.frame_hinanawi_tenshi_spell_call_index].convert_alpha()
+                x._blit_at_midbottom(img, dx= 100, dy=0)
+                if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 11:
+                    x.frame_hinanawi_tenshi_spell_call_index += 1
+                else:
+                    x.spell_call = False
+                    x.frame_hinanawi_tenshi_spell_call_index = 0
+    
+    def function_gaurd_upper_B_left(x):
+        if x.gaurd_upper_B:
+            if 0 <= x.frame_hinanawi_tenshi_gaurd_upper_B_index < 4:
+                img = pygame.transform.flip(x.frames_hinanawi_tenshi_gaurd_upper_B[x.frame_hinanawi_tenshi_gaurd_upper_B_index].convert_alpha(), True, False)
+                x._blit_at_midbottom(img, dx= 0, dy=0)
+                if 0 <= x.frame_hinanawi_tenshi_gaurd_upper_B_index < 3:
+                    x.frame_hinanawi_tenshi_gaurd_upper_B_index += 1
+                else:
+                    x.gaurd_upper_B = False
+                    x.frame_hinanawi_tenshi_gaurd_upper_B_index = 0
+
+    def function_gaurd_upper_B_right(x):
+        if x.gaurd_upper_B:
+            if 0 <= x.frame_hinanawi_tenshi_gaurd_upper_B_index < 4:
+                img = x.frames_hinanawi_tenshi_gaurd_upper_B[x.frame_hinanawi_tenshi_gaurd_upper_B_index].convert_alpha()
+                x._blit_at_midbottom(img, dx= 0, dy=0)
+                if 0 <= x.frame_hinanawi_tenshi_gaurd_upper_B_index < 3:
+                    x.frame_hinanawi_tenshi_gaurd_upper_B_index += 1
+                else:
+                    x.gaurd_upper_B = False
+                    x.frame_hinanawi_tenshi_gaurd_upper_B_index = 0
