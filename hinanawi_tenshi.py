@@ -2,6 +2,7 @@
 import pygame
 from pygame.sprite import Sprite
 
+
 ##########The class of Hinanawi Tenshi##########
 class HinanawiTenshi(Sprite):
     def __init__(x,tht_game):
@@ -19,6 +20,8 @@ class HinanawiTenshi(Sprite):
         x.frames_hinanawi_tenshi_shot_B = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_shot_B/frame_{i}.png"),(720, x.settings.tenshi_size_y)) for i in range(0,12)]
         x.frames_hinanawi_tenshi_spell_call = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_spell_call/frame_{i}.png"),(480, 540)) for i in range(0,12)]
         x.frames_hinanawi_tenshi_gaurd_upper_B = [pygame.transform.scale(pygame.image.load(f"/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/hinanawi_tenshi_gaurd_upper_B/frame_{i}.png"),(280, 460)) for i in range(0,4)]
+        x.image_3 = pygame.image.load("/Users/dog/Desktop/python_work/Touhou_Hinanawi_Tenshi/graphs/g_3.png").convert_alpha()
+        x.image_3.set_alpha(50)
         x.frames_hinanawi_tenshi_sit_down = x.frames_hinanawi_tenshi_sit[0:6]
         x.frame_hinanawi_tenshi_sitting = x.frames_hinanawi_tenshi_sit[6]
         x.frames_hinanawi_tenshi_stand_up = x.frames_hinanawi_tenshi_sit[7:12]
@@ -60,6 +63,7 @@ class HinanawiTenshi(Sprite):
         x.sit_phase = "idle"
         x.mask = pygame.mask.from_surface(x.frames_idle[0].convert_alpha())
         x.rect = x.rects_idle[0]
+        x.k, x.y = 0, -1615
 
     def _anchor_midbottom(x):
         return x.rects_hinanawi_tenshi_dash_forward_air_A[x.frame_hinanawi_tenshi_dash_forward_air_A_index].midbottom
@@ -297,22 +301,29 @@ class HinanawiTenshi(Sprite):
             if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 12:
                 img = pygame.transform.flip(x.frames_hinanawi_tenshi_spell_call[x.frame_hinanawi_tenshi_spell_call_index].convert_alpha(), True, False)
                 x._blit_at_midbottom(img, dx= -100, dy=0)
+                x.screen.blit(pygame.transform.scale(x.image_3,(1730,2595)),(x.k, x.y))
                 if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 11:
                     x.frame_hinanawi_tenshi_spell_call_index += 1
+                    x.y += 200
                 else:
                     x.spell_call = False
                     x.frame_hinanawi_tenshi_spell_call_index = 0
+                    x.k, x.y = 0, 0 -1615
     
     def function_spell_call_right(x):
         if x.spell_call:
             if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 12:
                 img = x.frames_hinanawi_tenshi_spell_call[x.frame_hinanawi_tenshi_spell_call_index].convert_alpha()
                 x._blit_at_midbottom(img, dx= 100, dy=0)
+
+                x.screen.blit(pygame.transform.flip(pygame.transform.scale(x.image_3,(1730,2595)),True,False),(x.k, x.y))
                 if 0 <= x.frame_hinanawi_tenshi_spell_call_index < 11:
                     x.frame_hinanawi_tenshi_spell_call_index += 1
+                    x.y += 200
                 else:
                     x.spell_call = False
                     x.frame_hinanawi_tenshi_spell_call_index = 0
+                    x.k, x.y = 0, -1615
     
     def function_gaurd_upper_B_left(x):
         if x.gaurd_upper_B:
